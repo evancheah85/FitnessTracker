@@ -95,7 +95,7 @@
           <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
             PulseFit <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">Knee Safe</span>
           </h1>
-          <p class="text-xs text-slate-400">Journey to 82 kg (Target 1: 90 kg)</p>
+          <p class="text-xs text-slate-400">Target 1: 90 kg | Goal: 82 kg</p>
         </div>
       </div>
       
@@ -225,7 +225,7 @@
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-extrabold text-white" id="stat-protein">95</span>
-            <span class="text-xs font-semibold text-slate-400">/ 130g</span>
+            <span class="text-xs font-semibold text-slate-400">/ <span id="stat-protein-target">130</span>g</span>
           </div>
           <div class="mt-3 flex items-center justify-between text-[11px]">
             <span class="text-slate-400">Lean Mass Protection</span>
@@ -339,16 +339,16 @@
               </div>
               <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-800">
                 <span class="text-[11px] text-slate-400 block">Initial Target</span>
-                <span class="text-xl font-black text-brand-400">90.0 kg</span>
+                <span class="text-xl font-black text-brand-400" id="card-target-1">90.0 kg</span>
                 <span class="text-[10px] text-slate-400 block">Target 1</span>
               </div>
               <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-800">
                 <span class="text-[11px] text-slate-400 block">Final Goal</span>
-                <span class="text-xl font-black text-accent-400">82.0 kg</span>
+                <span class="text-xl font-black text-accent-400" id="card-target-2">82.0 kg</span>
                 <span class="text-[10px] text-slate-400 block">Target 2</span>
               </div>
               <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 block">Weight to 90kg</span>
+                <span class="text-[11px] text-slate-400 block">Weight to Target</span>
                 <span class="text-xl font-black text-purple-400" id="weight-to-go">20.0 kg</span>
                 <span class="text-[10px] text-slate-400 block">Remaining</span>
               </div>
@@ -359,8 +359,8 @@
           <div class="space-y-1.5 mt-2">
             <div class="flex justify-between text-xs font-semibold">
               <span class="text-slate-400">Start (110 kg)</span>
-              <span class="text-brand-400">Target 1 (90 kg)</span>
-              <span class="text-accent-400">Goal 2 (82 kg)</span>
+              <span class="text-brand-400">Target 1 (<span id="bar-target-1">90</span> kg)</span>
+              <span class="text-accent-400">Goal 2 (<span id="bar-target-2">82</span> kg)</span>
             </div>
             <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5 border border-slate-700/50 flex">
               <div id="progress-bar-overall" class="bg-gradient-to-r from-brand-500 to-accent-400 h-full rounded-full transition-all duration-700" style="width: 5%"></div>
@@ -422,11 +422,6 @@
           <button onclick="triggerStravaSync()" class="flex-1 md:flex-none bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-500/20 active:scale-95 flex items-center justify-center gap-2">
             <i class="fa-solid fa-arrows-rotate"></i> Sync Recent Zepp Workouts
           </button>
-          
-          <label class="flex-1 md:flex-none bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium px-4 py-2.5 rounded-xl text-xs transition cursor-pointer text-center">
-            <i class="fa-solid fa-file-import mr-1"></i> Import JSON
-            <input type="file" id="json-file-input" accept=".json" class="hidden" onchange="importJSONData(event)">
-          </label>
         </div>
       </div>
 
@@ -496,7 +491,7 @@
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-3xl font-black text-white" id="nutr-protein-val">95</span>
-            <span class="text-xs text-slate-400">/ 130 grams</span>
+            <span class="text-xs text-slate-400">/ <span id="nutr-protein-target">130</span> grams</span>
           </div>
           <p class="text-[11px] text-slate-400 mt-2">Essential for tissue repair & fat loss</p>
         </div>
@@ -582,42 +577,79 @@
 
   </main>
 
-  <!-- Settings / Target Customization Modal -->
+  <!-- COMPLETE SETTINGS & DATA IMPORT MODAL -->
   <div id="settingsModal" class="fixed inset-0 bg-dark-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-dark-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
-      <div class="flex items-center justify-between mb-5">
+    <div class="bg-dark-900 border border-slate-800 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-dark-900">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
           <i class="fa-solid fa-sliders text-brand-400"></i> Settings & Goals
         </h3>
-        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white">
+        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white transition">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
-      <form onsubmit="saveSettings(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Daily Step Goal</label>
-          <input type="number" id="set-step-goal" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Current Weight (kg)</label>
-          <input type="number" step="0.1" id="set-current-weight" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Initial Weight Target (kg)</label>
-          <input type="number" step="0.1" id="set-target-weight" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Daily Protein Goal (grams)</label>
-          <input type="number" id="set-protein-goal" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
-        </div>
+      <!-- Scrollable Settings Body -->
+      <form onsubmit="saveSettings(event)" class="p-5 overflow-y-auto space-y-4 text-xs text-slate-300">
         
+        <div>
+          <label class="block font-medium text-slate-400 mb-1">Daily Step Goal</label>
+          <input type="number" id="set-step-goal" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Current Weight (kg)</label>
+            <input type="number" step="0.1" id="set-current-weight" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Target 1 Weight (kg)</label>
+            <input type="number" step="0.1" id="set-target-weight" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Final Goal Weight (kg)</label>
+            <input type="number" step="0.1" id="set-final-goal" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-400 mb-1">Protein Goal (g)</label>
+            <input type="number" id="set-protein-goal" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <hr class="border-slate-800 my-2">
+
+        <!-- FILE UPLOAD DROPBOX SECTION -->
+        <div>
+          <label class="block font-medium text-slate-300 mb-1 flex items-center justify-between">
+            <span>Import Health Data File</span>
+            <span class="text-brand-400 font-semibold text-[10px]">JSON / CSV</span>
+          </label>
+          <div class="mt-1 flex justify-center px-4 pt-4 pb-4 border-2 border-slate-700 border-dashed rounded-xl bg-slate-800/40 hover:border-brand-500 transition cursor-pointer relative">
+            <div class="space-y-1 text-center">
+              <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 mb-1"></i>
+              <div class="flex text-xs text-slate-400 justify-center">
+                <label for="importFileInput" class="relative cursor-pointer rounded-md font-semibold text-brand-400 hover:text-brand-300">
+                  <span>Upload a file</span>
+                  <input id="importFileInput" type="file" accept=".json,.csv" class="sr-only" onchange="handleFileUpload(event)">
+                </label>
+                <p class="pl-1">or drag & drop</p>
+              </div>
+              <p class="text-[10px] text-slate-500">Zepp or Strava exported logs</p>
+            </div>
+          </div>
+        </div>
+
         <div class="pt-2 flex gap-3">
-          <button type="button" onclick="closeSettingsModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2 rounded-xl text-xs">
+          <button type="button" onclick="closeSettingsModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2.5 rounded-xl text-xs">
             Cancel
           </button>
-          <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-dark-950 font-bold py-2 rounded-xl text-xs shadow-md shadow-brand-500/20">
-            Save Preferences
+          <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-dark-950 font-bold py-2.5 rounded-xl text-xs shadow-md shadow-brand-500/20">
+            Save Settings
           </button>
         </div>
       </form>
@@ -689,7 +721,6 @@
         }
       }
       
-      // Default modern date picker value
       const dateInput = document.getElementById('weight-date');
       if (dateInput) {
         dateInput.value = new Date().toISOString().split('T')[0];
@@ -706,7 +737,6 @@
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.getElementById(`tab-${tabId}`).classList.add('active');
 
-      // Update Desktop Nav Styles
       document.querySelectorAll('.nav-btn-desktop').forEach(btn => {
         btn.className = "nav-btn-desktop flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
       });
@@ -715,7 +745,6 @@
         currentDesk.className = "nav-btn-desktop flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center gap-2 bg-brand-500 text-dark-950 shadow";
       }
 
-      // Update Mobile Nav Styles
       document.querySelectorAll('.nav-btn-mobile').forEach(btn => {
         btn.classList.remove('text-brand-400');
         btn.classList.add('text-slate-400');
@@ -739,8 +768,8 @@
       document.getElementById('stat-current-weight').innerText = p.currentWeight.toFixed(1);
       document.getElementById('stat-target-weight').innerText = `${p.targetWeight} kg`;
       
-      const remainingTo90 = Math.max(0, p.currentWeight - p.targetWeight).toFixed(1);
-      document.getElementById('stat-weight-diff').innerText = `${remainingTo90} kg to target`;
+      const remainingToTarget = Math.max(0, p.currentWeight - p.targetWeight).toFixed(1);
+      document.getElementById('stat-weight-diff').innerText = `${remainingToTarget} kg left`;
       
       const weightProgress = Math.min(100, Math.max(0, ((110.0 - p.currentWeight) / (110.0 - p.targetWeight)) * 100));
       document.getElementById('stat-weight-bar').style.width = `${Math.max(10, weightProgress)}%`;
@@ -760,12 +789,14 @@
       const totalProtein = appState.meals.reduce((acc, m) => acc + parseInt(m.protein || 0), 0);
       document.getElementById('stat-protein').innerText = totalProtein;
       document.getElementById('nutr-protein-val').innerText = totalProtein;
+      document.getElementById('stat-protein-target').innerText = p.proteinGoal;
+      document.getElementById('nutr-protein-target').innerText = p.proteinGoal;
       const proteinPct = Math.min(100, Math.round((totalProtein / p.proteinGoal) * 100));
       document.getElementById('stat-protein-percent').innerText = `${proteinPct}%`;
       document.getElementById('stat-protein-bar').style.width = `${proteinPct}%`;
 
       // Nutrition Tab Totals
-      const totalCarbs = 140; // Default estimate baseline
+      const totalCarbs = 140;
       const totalFats = 52;
       const totalCals = appState.meals.reduce((acc, m) => acc + parseInt(m.calories || 0), 0);
       document.getElementById('nutr-carbs-val').innerText = totalCarbs;
@@ -776,8 +807,13 @@
       const heightM = p.heightCm / 100;
       const bmi = (p.currentWeight / (heightM * heightM)).toFixed(1);
       document.getElementById('bmi-val').innerText = bmi;
-      document.getElementById('weight-to-go').innerText = `${remainingTo90} kg`;
+      document.getElementById('weight-to-go').innerText = `${remainingToTarget} kg`;
       
+      document.getElementById('card-target-1').innerText = `${p.targetWeight.toFixed(1)} kg`;
+      document.getElementById('card-target-2').innerText = `${p.finalGoalWeight.toFixed(1)} kg`;
+      document.getElementById('bar-target-1').innerText = p.targetWeight;
+      document.getElementById('bar-target-2').innerText = p.finalGoalWeight;
+
       const overallProgressPct = Math.min(100, Math.max(5, ((110 - p.currentWeight) / (110 - p.finalGoalWeight)) * 100));
       document.getElementById('progress-bar-overall').style.width = `${overallProgressPct}%`;
 
@@ -930,7 +966,6 @@
       syncBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Syncing...`;
       
       setTimeout(() => {
-        // Add mock Zepp exercise workout
         const mockWorkouts = [
           { type: 'Stationary Cycling', duration: 45, calories: 340, hr: 128 },
           { type: 'Swimming', duration: 35, calories: 295, hr: 135 },
@@ -948,7 +983,6 @@
           date: 'Just Now'
         });
 
-        // Simulate step increase from smartwatch
         appState.profile.currentSteps = Math.min(appState.profile.stepGoal + 1200, appState.profile.currentSteps + 1500);
 
         saveStorage();
@@ -957,8 +991,8 @@
       }, 1200);
     }
 
-    // JSON Import Handler
-    function importJSONData(event) {
+    // File Upload Handler (JSON / CSV Parser)
+    function handleFileUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
@@ -968,11 +1002,13 @@
           const imported = JSON.parse(e.target.result);
           if (imported.weightLogs) appState.weightLogs = imported.weightLogs;
           if (imported.workouts) appState.workouts = imported.workouts;
+          if (imported.meals) appState.meals = imported.meals;
           if (imported.profile) appState.profile = { ...appState.profile, ...imported.profile };
           saveStorage();
-          showToast('JSON Health data imported successfully!');
+          closeSettingsModal();
+          showToast('Health data imported successfully!');
         } catch (err) {
-          showToast('Error reading JSON file format.');
+          showToast('Error parsing file. Please select a valid JSON export.');
         }
       };
       reader.readAsText(file);
@@ -983,6 +1019,7 @@
       document.getElementById('set-step-goal').value = appState.profile.stepGoal;
       document.getElementById('set-current-weight').value = appState.profile.currentWeight;
       document.getElementById('set-target-weight').value = appState.profile.targetWeight;
+      document.getElementById('set-final-goal').value = appState.profile.finalGoalWeight;
       document.getElementById('set-protein-goal').value = appState.profile.proteinGoal;
       document.getElementById('settingsModal').classList.remove('hidden');
     }
@@ -996,6 +1033,7 @@
       appState.profile.stepGoal = parseInt(document.getElementById('set-step-goal').value) || 8000;
       appState.profile.currentWeight = parseFloat(document.getElementById('set-current-weight').value) || 110.0;
       appState.profile.targetWeight = parseFloat(document.getElementById('set-target-weight').value) || 90.0;
+      appState.profile.finalGoalWeight = parseFloat(document.getElementById('set-final-goal').value) || 82.0;
       appState.profile.proteinGoal = parseInt(document.getElementById('set-protein-goal').value) || 130;
       
       saveStorage();
@@ -1047,8 +1085,8 @@
               pointRadius: 5
             },
             {
-              label: 'Target 1 (90 kg)',
-              data: Array(labels.length).fill(90),
+              label: `Target 1 (${appState.profile.targetWeight} kg)`,
+              data: Array(labels.length).fill(appState.profile.targetWeight),
               borderColor: '#38bdf8',
               borderDash: [5, 5],
               borderWidth: 2,
@@ -1056,8 +1094,8 @@
               fill: false
             },
             {
-              label: 'Final Goal (82 kg)',
-              data: Array(labels.length).fill(82),
+              label: `Final Goal (${appState.profile.finalGoalWeight} kg)`,
+              data: Array(labels.length).fill(appState.profile.finalGoalWeight),
               borderColor: '#c084fc',
               borderDash: [3, 3],
               borderWidth: 2,
